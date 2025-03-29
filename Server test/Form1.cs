@@ -12,9 +12,37 @@ namespace Server_test
         List<Thread> Tt;
         static bool isServerRun;
         static bool isClosing;
+        Dictionary<string, float[]> wordVectors = new Dictionary<string, float[]>();
         public Form1()
         {
             InitializeComponent();
+            string filePath = "cc.ko.300.bin";
+
+            using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
+            {
+                // 이진 데이터 파싱 작업 시작
+                //Console.WriteLine("Binary file loaded successfully!");
+
+                // 파일의 메타데이터 읽기 (Word 수 및 벡터 크기 예시)
+                int vocabSize = reader.ReadInt32();
+                int vectorSize = reader.ReadInt32();
+                //Console.WriteLine($"Vocabulary Size: {vocabSize}, Vector Size: {vectorSize}");
+
+                // 단어와 벡터를 읽어 사전에 저장
+
+                for (int i = 0; i < vocabSize; i++)
+                {
+                    string word = reader.ReadString();
+                    float[] vector = new float[vectorSize];
+
+                    for (int j = 0; j < vectorSize; j++)
+                    {
+                        vector[j] = reader.ReadSingle();
+                    }
+
+                    wordVectors[word] = vector;
+                }
+            }
             clients = new List<Client>();
             isServerRun = false;
             T = new Thread(() => ServerLoop(1111));
